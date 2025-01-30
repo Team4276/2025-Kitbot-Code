@@ -187,7 +187,7 @@ public class RobotContainer {
         drive.setDefaultCommand(
                 drive.run(
                         () -> drive.feedTeleopInput(
-                                driver.getLeftX(), -driver.getLeftY(), -driver.getRightX())));
+                                -driver.getLeftWithDeadband().y, -driver.getLeftWithDeadband().x, driver.getRightWithDeadband().x)));
 
         // Reset gyro to 0° when A button is pressed
         driver
