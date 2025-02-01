@@ -52,64 +52,67 @@ import frc.team4276.util.BetterXboxController;
  * commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-    // Subsystems
+  // Subsystems
 
-    private Drive drive;
-    private Superstructure superstructure;
-    private Vision vision;
+  private Drive drive;
+  private Superstructure superstructure;
 
-    @SuppressWarnings("unused")
+  @SuppressWarnings("unused")
+  private Vision vision;
 
-    private AutoBuilder autoBuilder;
-    private Roller roller;
+  private AutoBuilder autoBuilder;
+  private Roller roller;
 
-    // Controller
-    private final BetterXboxController driver = new BetterXboxController(0);
-    private final CommandGenericHID keyboard0 = new CommandGenericHID(1);
-    private final CommandGenericHID keyboard1 = new CommandGenericHID(2);
-    private final CommandGenericHID keyboard2 = new CommandGenericHID(3);
+  // Controller
+  private final BetterXboxController driver = new BetterXboxController(0);
+  private final CommandGenericHID keyboard0 = new CommandGenericHID(1);
+  private final CommandGenericHID keyboard1 = new CommandGenericHID(2);
+  private final CommandGenericHID keyboard2 = new CommandGenericHID(3);
 
-    private final ScoringHelper scoringHelper = new ScoringHelper();
+  private final ScoringHelper scoringHelper = new ScoringHelper();
 
-    // Dashboard inputs
-    private final AutoSelector autoSelector = new AutoSelector();
+  // Dashboard inputs
+  private final AutoSelector autoSelector = new AutoSelector();
 
-    /**
-     * The container for the robot. Contains subsystems, OI devices, and
-     * commands.
-     */
-    public RobotContainer() {
-        if (Constants.getMode() != Constants.Mode.REPLAY) {
-            switch (Constants.getMode()) {
-                case REAL:
-                    // Real robot, instantiate hardware IO implementations
-                    drive = new Drive(
-                            new GyroIOADIS(),
-                            new ModuleIOSpark(0),
-                            new ModuleIOSpark(1),
-                            new ModuleIOSpark(2),
-                            new ModuleIOSpark(3));
+  /**
+   * The container for the robot. Contains subsystems, OI devices, and
+   * commands.
+   */
+  public RobotContainer() {
+    if (Constants.getMode() != Constants.Mode.REPLAY) {
+      switch (Constants.getMode()) {
+        case REAL:
+          // Real robot, instantiate hardware IO implementations
+          drive = new Drive(
+              new GyroIOADIS(),
+              new ModuleIOSpark(0),
+              new ModuleIOSpark(1),
+              new ModuleIOSpark(2),
+              new ModuleIOSpark(3));
 
-                    roller = new Roller(new RollerIOSparkMax(Ports.ALGAE_INTAKE_ROLLER, 20, true, false));
-                              vision = new Vision(
+          roller = new Roller(new RollerIOSparkMax(Ports.ALGAE_INTAKE_ROLLER, 20, true,
+              false));
+          vision = new Vision(
               RobotState.getInstance()::addVisionMeasurement,
               new VisionIOPhotonVision(
-                  VisionConstants.camera0Name, VisionConstants.robotToCamera0),
+                  VisionConstants.camera0Name,
+                  VisionConstants.robotToCamera0),
               new VisionIOPhotonVision(
-                  VisionConstants.camera1Name, VisionConstants.robotToCamera1));
-                    break;
+                  VisionConstants.camera1Name,
+                  VisionConstants.robotToCamera1));
+          break;
 
-                case SIM:
-                    // Sim robot, instantiate physics sim IO implementations
-                    drive = new Drive(
-                            new GyroIO() {
-                    },
-                            new ModuleIOSim(),
-                            new ModuleIOSim(),
-                            new ModuleIOSim(),
-                            new ModuleIOSim());
-                    roller = new Roller(new RollerIO() {
-                    });
+        case SIM:
+          // Sim robot, instantiate physics sim IO implementations
+          drive = new Drive(
+              new GyroIO() {
+              },
+              new ModuleIOSim(),
+              new ModuleIOSim(),
+              new ModuleIOSim(),
+              new ModuleIOSim());
+          roller = new Roller(new RollerIO() {
+          });
           vision = new Vision(
               RobotState.getInstance()::addVisionMeasurement,
               new VisionIOPhotonVisionSim(
@@ -120,122 +123,133 @@ public class RobotContainer {
                   VisionConstants.camera1Name,
                   VisionConstants.robotToCamera1,
                   RobotState.getInstance()::getEstimatedPose));
-                    break;
+          break;
 
-                default:
-                    // Replayed robot, disable IO implementations
-                    drive = new Drive(
-                            new GyroIO() {
-                    },
-                            new ModuleIO() {
-                    },
-                            new ModuleIO() {
-                    },
-                            new ModuleIO() {
-                    },
-                            new ModuleIO() {
-                    });
-                    roller = new Roller(new RollerIO() {
-                    });
-                    vision = new Vision(
-                        RobotState.getInstance()::addVisionMeasurement,
-                        new VisionIO() {
-                        },
-                        new VisionIO() {
-                        });
-            }
-        }
-
-        autoBuilder = new AutoBuilder(drive);
-
-        // Set up SysId routines
-        autoSelector.addRoutine(
-                "Drive Wheel Radius Characterization", new WheelRadiusCharacterization(drive));
-        autoSelector.addRoutine(
-                "Drive Simple FF Characterization",
-                new FeedForwardCharacterization(
-                        drive, drive::runCharacterization, drive::getFFCharacterizationVelocity));
-        autoSelector.addRoutine(
-                "Drive SysId (Quasistatic Forward)",
-                drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-        autoSelector.addRoutine(
-                "Drive SysId (Quasistatic Reverse)",
-                drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-        autoSelector.addRoutine(
-                "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-        autoSelector.addRoutine(
-                "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-
-        // Configure the button bindings
-        configureButtonBindings();
-
-        // Peace and quiet
-        if (Constants.getType() == RobotType.SIMBOT) {
-            DriverStation.silenceJoystickConnectionWarning(true);
-        }
+        default:
+          // Replayed robot, disable IO implementations
+          drive = new Drive(
+              new GyroIO() {
+              },
+              new ModuleIO() {
+              },
+              new ModuleIO() {
+              },
+              new ModuleIO() {
+              },
+              new ModuleIO() {
+              });
+          roller = new Roller(new RollerIO() {
+          });
+          vision = new Vision(
+              RobotState.getInstance()::addVisionMeasurement,
+              new VisionIO() {
+              },
+              new VisionIO() {
+              });
+      }
     }
 
-    /**
-     * Use this method to define your button->command mappings. Buttons can be
-     * created by instantiating a {@link GenericHID} or one of its subclasses ({@link
-     * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then
-     * passing it to a {@link
-     * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
-     */
-    private void configureButtonBindings() {
-        // Default command, normal field-relative drive
-        drive.setDefaultCommand(
-                drive.run(
-                        () -> drive.feedTeleopInput(
-                                -driver.getLeftWithDeadband().y, -driver.getLeftWithDeadband().x, driver.getRightWithDeadband().x)));
+    autoBuilder = new AutoBuilder(drive);
 
-        // Reset gyro to 0° when A button is pressed
-        driver
-                .a()
-                .onTrue(
-                        Commands.runOnce(
-                                () -> RobotState.getInstance()
-                                        .resetPose(
-                                                new Pose2d(
-                                                        RobotState.getInstance().getEstimatedPose().getTranslation(),
-                                                        new Rotation2d())),
-                                drive)
-                                .ignoringDisable(true));
+    // Set up SysId routines
+    autoSelector.addRoutine(
+        "Drive Wheel Radius Characterization", new WheelRadiusCharacterization(drive));
+    autoSelector.addRoutine(
+        "Drive Simple FF Characterization",
+        new FeedForwardCharacterization(
+            drive, drive::runCharacterization,
+            drive::getFFCharacterizationVelocity));
+    autoSelector.addRoutine(
+        "Drive SysId (Quasistatic Forward)",
+        drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    autoSelector.addRoutine(
+        "Drive SysId (Quasistatic Reverse)",
+        drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    autoSelector.addRoutine(
+        "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    autoSelector.addRoutine(
+        "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
-        keyboard0
-                .button(1)
-                .whileTrue(
-                        Commands.startEnd(
-                                () -> drive.setAutoAlignPosition(scoringHelper.getSelectedPose()),
-                                drive::disableAutoAlign)
-                                .until(drive::isAutoAligned));
+    // Configure the button bindings
+    configureButtonBindings();
 
-        driver
-                .rightBumper()
-                .onTrue(
-                        Commands.runOnce(() -> superstructure.scoreCommand()));
-
-        driver
-                .leftBumper()
-                .whileTrue(
-                        Commands.startEnd(
-                                () -> drive.setHeadingGoal(
-                                        () -> Rotation2d.fromDegrees(-90.0 + (ChoreoAllianceFlipUtil.shouldFlip() ? 180.0 : 0.0))),
-                                drive::clearHeadingGoal));
-
-        driver
-                .leftTrigger()
-                .whileTrue(roller.startEnd(() -> roller.setGoal(Goal.SCORE), () -> roller.setGoal(Goal.IDLE)));
+    // Peace and quiet
+    if (Constants.getType() == RobotType.SIMBOT || !DriverStation.isFMSAttached()) {
+      DriverStation.silenceJoystickConnectionWarning(true);
     }
+  }
 
-    /**
-     * Use this to pass the autonomous command to the main {@link Robot} class.
-     *
-     * @return the command to run in autonomous
-     */
-    public Command getAutonomousCommand() {
-        return autoBuilder.TestPPTraj("SimDemo");
-        // new FeedForwardCharacterization(
-        // drive, drive::runCharacterization, drive::getFFCharacterizationVelocity);
-    }
+  /**
+   * Use this method to define your button->command mappings. Buttons can be
+   * created by instantiating a {@link GenericHID} or one of its subclasses
+   * ({@link
+   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then
+   * passing it to a {@link
+   * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
+   */
+  private void configureButtonBindings() {
+    // Default command, normal field-relative drive
+    drive.setDefaultCommand(
+        drive.run(
+            () -> drive.feedTeleopInput(
+                -driver.getLeftWithDeadband().y,
+                -driver.getLeftWithDeadband().x,
+                -driver.getRightWithDeadband().x)));
+
+    // Reset gyro to 0° when A button is pressed
+    driver
+        .a()
+        .onTrue(
+            Commands.runOnce(
+                () -> RobotState.getInstance()
+                    .resetPose(
+                        new Pose2d(
+                            RobotState.getInstance()
+                                .getEstimatedPose()
+                                .getTranslation(),
+                            new Rotation2d())),
+                drive)
+                .ignoringDisable(true));
+
+    keyboard0
+        .button(1)
+        .whileTrue(
+            Commands.startEnd(
+                () -> drive.setAutoAlignPosition(
+                    scoringHelper.getSelectedPose()),
+                drive::disableAutoAlign)
+                .until(drive::isAutoAligned));
+
+    driver
+        .rightBumper()
+        .onTrue(
+            Commands.runOnce(() -> superstructure.scoreCommand()));
+
+    driver
+        .leftBumper()
+        .whileTrue(
+            Commands.startEnd(
+                () -> drive.setHeadingGoal(
+                    () -> Rotation2d.fromDegrees(-90.0
+                        + (ChoreoAllianceFlipUtil
+                            .shouldFlip() ? 180.0
+                                : 0.0))),
+                drive::clearHeadingGoal));
+
+    driver
+        .leftTrigger()
+        .whileTrue(roller.startEnd(() -> roller.setGoal(Goal.SCORE),
+            () -> roller.setGoal(Goal.IDLE)));
+  }
+
+  /**
+   * Use this to pass the autonomous command to the main {@link Robot} class.
+   *
+   * @return the command to run in autonomous
+   */
+  public Command getAutonomousCommand() {
+    return autoBuilder.TestPPTraj("SimDemo");
+    // new FeedForwardCharacterization(
+    // drive, drive::runCharacterization, drive::getFFCharacterizationVelocity);
+  }
 }

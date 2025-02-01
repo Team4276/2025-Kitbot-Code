@@ -1,5 +1,7 @@
 package frc.team4276.frc2025.subsystems.drive.controllers;
 
+import org.littletonrobotics.junction.Logger;
+
 import choreo.util.ChoreoAllianceFlipUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -7,7 +9,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import frc.team4276.frc2025.subsystems.drive.DriveConstants;
 
 public class TeleopDriveController {
-  private static final double LINEAR_VELOCITY_SCALAR = 1.0;
+  private static final double LINEAR_VELOCITY_SCALAR = 0.25;
   private static final double ANGULAR_VELOCITY_SCALAR = 0.65;
 
   private double controllerX = 0.0;
@@ -15,6 +17,9 @@ public class TeleopDriveController {
   private double controllerOmega = 0.0;
 
   public void feedDriveInput(double x, double y, double omega) {
+    Logger.recordOutput("Drive/TeleopController/xInput", x);
+    Logger.recordOutput("Drive/TeleopController/yInput", y);
+    Logger.recordOutput("Drive/TeleopController/omegaInput", omega);
     controllerX = x;
     controllerY = y;
     controllerOmega = omega;
@@ -43,7 +48,9 @@ public class TeleopDriveController {
   }
 
   public ChassisSpeeds update(Rotation2d yaw) {
+    Logger.recordOutput("Choreo/ShouldFlip", ChoreoAllianceFlipUtil.shouldFlip());
+
     return ChassisSpeeds.fromFieldRelativeSpeeds(updateRaw(yaw),
-        ChoreoAllianceFlipUtil.shouldFlip() ? yaw : yaw.plus(Rotation2d.fromDegrees(180)));
+        ChoreoAllianceFlipUtil.shouldFlip() ? yaw.plus(Rotation2d.fromDegrees(180)) : yaw);
   }
 }
