@@ -248,8 +248,6 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return autoBuilder.TestPPTraj("SimDemo");
-    // new FeedForwardCharacterization(
-    // drive, drive::runCharacterization, drive::getFFCharacterizationVelocity);
+    return autoBuilder.testTraj("SimDemo");
   }
 }

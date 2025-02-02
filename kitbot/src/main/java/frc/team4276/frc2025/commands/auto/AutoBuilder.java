@@ -15,18 +15,10 @@ public class AutoBuilder {
     this.drive = drive;
   }
 
-  public Command TestChoreoTraj(String name) {
-    var traj1 = getChoreoSwerveTrajectory(name);
+  public Command testTraj(String name) {
+    var traj = getPathPlannerTrajectoryFromChoreo(name);
 
-    return Commands.runOnce(
-            () -> RobotState.getInstance().resetPose(traj1.getInitialPose(false).get()))
-        .andThen(followTrajectory(drive, traj1));
-  }
-
-  public Command TestPPTraj(String name) {
-    var traj1 = getPathPlannerTrajectoryFromChoreo(name);
-
-    return Commands.runOnce(() -> RobotState.getInstance().resetPose(traj1.getInitialPose()))
-        .andThen(followPathPlannerTrajectory(drive, traj1));
+    return Commands.runOnce(() -> RobotState.getInstance().resetPose(traj.getInitialPose()))
+        .andThen(followTrajectory(drive, traj));
   }
 }

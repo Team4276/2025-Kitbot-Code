@@ -73,7 +73,7 @@ public class RobotState {
     if (yaw == null) {
       // Derive from kinematics
       yaw = lastGyroAngle.rotateBy(
-          new Rotation2d(kinematics.toTwist2d(wheelPositions, lastWheelPositions).dtheta));
+          new Rotation2d(kinematics.toTwist2d(lastWheelPositions, wheelPositions).dtheta));
       lastGyroAngle = yaw;
     }
 

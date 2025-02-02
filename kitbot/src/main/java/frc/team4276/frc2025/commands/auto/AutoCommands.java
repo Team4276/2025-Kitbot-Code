@@ -1,7 +1,5 @@
 package frc.team4276.frc2025.commands.auto;
 
-import choreo.trajectory.SwerveSample;
-import choreo.trajectory.Trajectory;
 import choreo.util.ChoreoAllianceFlipUtil;
 import com.pathplanner.lib.trajectory.PathPlannerTrajectory;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -20,28 +18,15 @@ public class AutoCommands {
   }
 
   /** Creates a command that follows a trajectory, command ends when the trajectory is finished */
-  public static Command followTrajectory(Drive drive, Trajectory<SwerveSample> trajectory) {
+  public static Command followTrajectory(Drive drive, PathPlannerTrajectory trajectory) {
     return followTrajectory(drive, () -> trajectory);
   }
 
   /** Creates a command that follows a trajectory, command ends when the trajectory is finished */
   public static Command followTrajectory(
-      Drive drive, Supplier<Trajectory<SwerveSample>> trajectorySupplier) {
-    return Commands.startEnd(
-            () -> drive.setTrajectory(trajectorySupplier.get()), drive::clearTrajectory)
-        .until(drive::isTrajectoryCompleted);
-  }
-
-  /** Creates a command that follows a trajectory, command ends when the trajectory is finished */
-  public static Command followPathPlannerTrajectory(Drive drive, PathPlannerTrajectory trajectory) {
-    return followPathPlannerTrajectory(drive, () -> trajectory);
-  }
-
-  /** Creates a command that follows a trajectory, command ends when the trajectory is finished */
-  public static Command followPathPlannerTrajectory(
       Drive drive, Supplier<PathPlannerTrajectory> trajectorySupplier) {
     return Commands.startEnd(
-            () -> drive.setPathPlannerTrajectory(trajectorySupplier.get()), drive::clearTrajectory)
+            () -> drive.setTrajectory(trajectorySupplier.get()), drive::clearTrajectory)
         .until(drive::isTrajectoryCompleted);
   }
 

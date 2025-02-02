@@ -24,8 +24,6 @@ import com.pathplanner.lib.trajectory.PathPlannerTrajectory;
 import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.swerve.SwerveSetpoint;
 
-import choreo.trajectory.SwerveSample;
-import choreo.trajectory.Trajectory;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -294,16 +292,9 @@ public class Drive extends SubsystemBase {
     isHeadingControlled = false;
   }
 
-  public void setTrajectory(Trajectory<SwerveSample> traj) {
+  public void setTrajectory(PathPlannerTrajectory traj) {
     if (DriverStation.isAutonomousEnabled()) {
       trajectoryController.setTrajectory(traj);
-      mode = DriveMode.TRAJECTORY;
-    }
-  }
-
-  public void setPathPlannerTrajectory(PathPlannerTrajectory traj) {
-    if (DriverStation.isAutonomousEnabled()) {
-      trajectoryController.setPathPlannerTrajectory(traj);
       mode = DriveMode.TRAJECTORY;
     }
   }
