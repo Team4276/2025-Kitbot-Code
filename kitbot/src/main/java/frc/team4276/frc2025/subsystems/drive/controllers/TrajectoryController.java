@@ -70,6 +70,10 @@ public class TrajectoryController {
     rotationController.setPID(rotationkP.getAsDouble(), 0.0, rotationkD.getAsDouble());
     rotationController.setTolerance(Math.toRadians(rotationKTol.getAsDouble()));
 
+    if(getTrajectoryTime() > traj.getTotalTimeSeconds()){
+      isFinished = true;
+    }
+
     var sampledState = traj.sample(getTrajectoryTime());
 
     if (sampledState.pose.getTranslation().getDistance(currentPose.getTranslation()) > maxError.getAsDouble()) {
