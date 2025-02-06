@@ -55,7 +55,6 @@ public class RobotContainer {
   // Subsystems
 
   private Drive drive;
-  private Superstructure superstructure;
 
   @SuppressWarnings("unused")
   private Vision vision;
@@ -207,34 +206,9 @@ public class RobotContainer {
                             RobotState.getInstance()
                                 .getEstimatedPose()
                                 .getTranslation(),
-                            new Rotation2d())),
+                            ChoreoAllianceFlipUtil.flip(Rotation2d.kZero))),
                 drive)
                 .ignoringDisable(true));
-
-    keyboard0
-        .button(1)
-        .whileTrue(
-            Commands.startEnd(
-                () -> drive.setAutoAlignPosition(
-                    scoringHelper.getSelectedPose()),
-                drive::disableAutoAlign)
-                .until(drive::isAutoAligned));
-
-    driver
-        .rightBumper()
-        .onTrue(
-            Commands.runOnce(() -> superstructure.scoreCommand()));
-
-    driver
-        .leftBumper()
-        .whileTrue(
-            Commands.startEnd(
-                () -> drive.setHeadingGoal(
-                    () -> Rotation2d.fromDegrees(-90.0
-                        + (ChoreoAllianceFlipUtil
-                            .shouldFlip() ? 180.0
-                                : 0.0))),
-                drive::clearHeadingGoal));
 
     driver
         .leftTrigger()
@@ -248,6 +222,6 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return autoBuilder.testTraj("SimDemo");
+    return Commands.none();
   }
 }
