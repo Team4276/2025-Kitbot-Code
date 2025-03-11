@@ -12,7 +12,6 @@
 // GNU General Public License for more details.
 package frc.team4276.frc2025;
 
-import choreo.util.ChoreoAllianceFlipUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -20,12 +19,7 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.team4276.frc2025.Constants.RobotType;
-import frc.team4276.frc2025.commands.FeedForwardCharacterization;
-import frc.team4276.frc2025.commands.WheelRadiusCharacterization;
-import frc.team4276.frc2025.commands.auto.AutoBuilder;
 import frc.team4276.frc2025.subsystems.drive.Drive;
 import frc.team4276.frc2025.subsystems.drive.GyroIO;
 import frc.team4276.frc2025.subsystems.drive.GyroIOADIS;
@@ -36,138 +30,65 @@ import frc.team4276.frc2025.subsystems.roller.Roller;
 import frc.team4276.frc2025.subsystems.roller.Roller.Goal;
 import frc.team4276.frc2025.subsystems.roller.RollerIO;
 import frc.team4276.frc2025.subsystems.roller.RollerIOSparkMax;
-import frc.team4276.frc2025.subsystems.superstructure.Superstructure;
-import frc.team4276.frc2025.subsystems.vision.Vision;
-import frc.team4276.frc2025.subsystems.vision.VisionConstants;
-import frc.team4276.frc2025.subsystems.vision.VisionIO;
-import frc.team4276.frc2025.subsystems.vision.VisionIOPhotonVision;
-import frc.team4276.frc2025.subsystems.vision.VisionIOPhotonVisionSim;
-import frc.team4276.util.BetterXboxController;
+import frc.team4276.util.AllianceFlipUtil;
+import frc.team4276.util.VikXboxController;
 
 /**
- * This class is where the bulk of the robot should be declared. Since
- * Command-based is a "declarative" paradigm, very little robot logic should
- * actually be handled in the {@link Robot} periodic methods (other than the
- * scheduler calls). Instead, the structure of the robot (including subsystems,
- * commands, and button mappings) should be declared here.
+ * This class is where the bulk of the robot should be declared. Since Command-based is a
+ * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
+ * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
+ * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
   // Subsystems
-
   private Drive drive;
-
-  @SuppressWarnings("unused")
-  private Vision vision;
-
-  private AutoBuilder autoBuilder;
   private Roller roller;
 
   // Controller
-  private final BetterXboxController driver = new BetterXboxController(0);
-  private final CommandGenericHID keyboard0 = new CommandGenericHID(1);
-  private final CommandGenericHID keyboard1 = new CommandGenericHID(2);
-  private final CommandGenericHID keyboard2 = new CommandGenericHID(3);
+  private final VikXboxController driver = new VikXboxController(0);
 
-  private final ScoringHelper scoringHelper = new ScoringHelper();
-
-  // Dashboard inputs
-  private final AutoSelector autoSelector = new AutoSelector();
-
-  /**
-   * The container for the robot. Contains subsystems, OI devices, and
-   * commands.
-   */
+  /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     if (Constants.getMode() != Constants.Mode.REPLAY) {
       switch (Constants.getMode()) {
         case REAL:
           // Real robot, instantiate hardware IO implementations
-          drive = new Drive(
-              new GyroIOADIS(),
-              new ModuleIOSpark(0),
-              new ModuleIOSpark(1),
-              new ModuleIOSpark(2),
-              new ModuleIOSpark(3));
+          drive =
+              new Drive(
+                  new GyroIOADIS(),
+                  new ModuleIOSpark(0),
+                  new ModuleIOSpark(1),
+                  new ModuleIOSpark(2),
+                  new ModuleIOSpark(3));
 
-          roller = new Roller(new RollerIOSparkMax(Ports.ALGAE_INTAKE_ROLLER, 20, true,
-              false));
-          vision = new Vision(
-              RobotState.getInstance()::addVisionMeasurement,
-              new VisionIOPhotonVision(
-                  VisionConstants.camera0Name,
-                  VisionConstants.robotToCamera0),
-              new VisionIOPhotonVision(
-                  VisionConstants.camera1Name,
-                  VisionConstants.robotToCamera1));
+          roller = new Roller(new RollerIOSparkMax(Ports.ALGAE_INTAKE_ROLLER, 20, true, false));
           break;
 
         case SIM:
           // Sim robot, instantiate physics sim IO implementations
-          drive = new Drive(
-              new GyroIO() {
-              },
-              new ModuleIOSim(),
-              new ModuleIOSim(),
-              new ModuleIOSim(),
-              new ModuleIOSim());
-          roller = new Roller(new RollerIO() {
-          });
-          vision = new Vision(
-              RobotState.getInstance()::addVisionMeasurement,
-              new VisionIOPhotonVisionSim(
-                  VisionConstants.camera0Name,
-                  VisionConstants.robotToCamera0,
-                  RobotState.getInstance()::getEstimatedPose),
-              new VisionIOPhotonVisionSim(
-                  VisionConstants.camera1Name,
-                  VisionConstants.robotToCamera1,
-                  RobotState.getInstance()::getEstimatedPose));
+          drive =
+              new Drive(
+                  new GyroIO() {},
+                  new ModuleIOSim(),
+                  new ModuleIOSim(),
+                  new ModuleIOSim(),
+                  new ModuleIOSim());
+          roller = new Roller(new RollerIO() {});
+
           break;
 
         default:
           // Replayed robot, disable IO implementations
-          drive = new Drive(
-              new GyroIO() {
-              },
-              new ModuleIO() {
-              },
-              new ModuleIO() {
-              },
-              new ModuleIO() {
-              },
-              new ModuleIO() {
-              });
-          roller = new Roller(new RollerIO() {
-          });
-          vision = new Vision(
-              RobotState.getInstance()::addVisionMeasurement,
-              new VisionIO() {
-              },
-              new VisionIO() {
-              });
+          drive =
+              new Drive(
+                  new GyroIO() {},
+                  new ModuleIO() {},
+                  new ModuleIO() {},
+                  new ModuleIO() {},
+                  new ModuleIO() {});
+          roller = new Roller(new RollerIO() {});
       }
     }
-
-    autoBuilder = new AutoBuilder(drive);
-
-    // Set up SysId routines
-    autoSelector.addRoutine(
-        "Drive Wheel Radius Characterization", new WheelRadiusCharacterization(drive));
-    autoSelector.addRoutine(
-        "Drive Simple FF Characterization",
-        new FeedForwardCharacterization(
-            drive, drive::runCharacterization,
-            drive::getFFCharacterizationVelocity));
-    autoSelector.addRoutine(
-        "Drive SysId (Quasistatic Forward)",
-        drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    autoSelector.addRoutine(
-        "Drive SysId (Quasistatic Reverse)",
-        drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    autoSelector.addRoutine(
-        "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    autoSelector.addRoutine(
-        "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
     // Configure the button bindings
     configureButtonBindings();
@@ -179,41 +100,39 @@ public class RobotContainer {
   }
 
   /**
-   * Use this method to define your button->command mappings. Buttons can be
-   * created by instantiating a {@link GenericHID} or one of its subclasses
-   * ({@link
-   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then
-   * passing it to a {@link
+   * Use this method to define your button->command mappings. Buttons can be created by
+   * instantiating a {@link GenericHID} or one of its subclasses ({@link
+   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
     // Default command, normal field-relative drive
     drive.setDefaultCommand(
         drive.run(
-            () -> drive.feedTeleopInput(
-                -driver.getLeftWithDeadband().y,
-                -driver.getLeftWithDeadband().x,
-                -driver.getRightWithDeadband().x)));
+            () ->
+                drive.feedTeleopInput(
+                    -driver.getLeftWithDeadband().y,
+                    -driver.getLeftWithDeadband().x,
+                    -driver.getRightWithDeadband().x)));
 
     // Reset gyro to 0° when A button is pressed
     driver
         .a()
         .onTrue(
             Commands.runOnce(
-                () -> RobotState.getInstance()
-                    .resetPose(
-                        new Pose2d(
-                            RobotState.getInstance()
-                                .getEstimatedPose()
-                                .getTranslation(),
-                            ChoreoAllianceFlipUtil.flip(Rotation2d.kZero))),
-                drive)
+                    () ->
+                        RobotState.getInstance()
+                            .resetPose(
+                                new Pose2d(
+                                    RobotState.getInstance().getEstimatedPose().getTranslation(),
+                                    AllianceFlipUtil.apply(Rotation2d.kZero))),
+                    drive)
                 .ignoringDisable(true));
 
     driver
         .leftTrigger()
-        .whileTrue(roller.startEnd(() -> roller.setGoal(Goal.SCORE),
-            () -> roller.setGoal(Goal.IDLE)));
+        .whileTrue(
+            roller.startEnd(() -> roller.setGoal(Goal.SCORE), () -> roller.setGoal(Goal.IDLE)));
   }
 
   /**

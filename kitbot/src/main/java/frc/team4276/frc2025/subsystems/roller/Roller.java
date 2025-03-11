@@ -1,83 +1,80 @@
 package frc.team4276.frc2025.subsystems.roller;
 
-import java.util.function.DoubleSupplier;
-
-import org.littletonrobotics.junction.AutoLogOutput;
-import org.littletonrobotics.junction.Logger;
-
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import java.util.function.DoubleSupplier;
+import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
 
 public class Roller extends SubsystemBase {
 
-    public enum Goal {
-        IDLE(() -> 0.0),
-        INTAKE(() -> 12.0),
-        HOLD(() -> 2.0),
-        SCORE(() -> -12.0);
+  public enum Goal {
+    IDLE(() -> 0.0),
+    INTAKE(() -> 12.0),
+    HOLD(() -> 2.0),
+    SCORE(() -> -12.0);
 
-        private final DoubleSupplier voltageGoal;
+    private final DoubleSupplier voltageGoal;
 
-        private Goal(DoubleSupplier voltageGoal) {
-            this.voltageGoal = voltageGoal;
-        }
-
-        private double getVolts() {
-            return voltageGoal.getAsDouble();
-        }
-
+    private Goal(DoubleSupplier voltageGoal) {
+      this.voltageGoal = voltageGoal;
     }
 
-    private Goal goal = Goal.IDLE;
-    private boolean hasGamePiece = false;
+    private double getVolts() {
+      return voltageGoal.getAsDouble();
+    }
+  }
 
-    private final RollerIO io;
-    private final RollerIOInputsAutoLogged inputs = new RollerIOInputsAutoLogged();
+  private Goal goal = Goal.IDLE;
+  private boolean hasGamePiece = false;
 
-    public Roller(RollerIO io) {
-        this.io = io;
+  private final RollerIO io;
+  private final RollerIOInputsAutoLogged inputs = new RollerIOInputsAutoLogged();
 
-        setDefaultCommand(setGoalCommand(Goal.IDLE));
+  public Roller(RollerIO io) {
+    this.io = io;
+
+    setDefaultCommand(setGoalCommand(Goal.IDLE));
+  }
+
+  @Override
+  public void periodic() {
+    io.updateInputs(inputs);
+    Logger.processInputs("Roller", inputs);
+
+    if (DriverStation.isDisabled()) {
+      goal = Goal.IDLE;
     }
 
-    @Override
-    public void periodic() {
-        io.updateInputs(inputs);
-        Logger.processInputs("Roller", inputs);
-
-        if (DriverStation.isDisabled()) {
-            goal = Goal.IDLE;
-        }
-
-        if (inputs.supplyCurrentAmps > 40.0) {
-            hasGamePiece = true;
-        }
-
-        if (goal == Goal.SCORE) {
-            hasGamePiece = false;
-        }
-
-        io.runVolts(goal.getVolts());
-        Logger.recordOutput("Roller/Goal", goal);
+    if (inputs.supplyCurrentAmps > 40.0) {
+      hasGamePiece = true;
     }
 
-    @AutoLogOutput
-    public Goal getGoal() {
-        return goal;
+    if (goal == Goal.SCORE) {
+      hasGamePiece = false;
     }
 
-    @AutoLogOutput
-    public void setGoal(Goal goal) {
-        this.goal = goal;
-    }
+    io.runVolts(goal.getVolts());
+    Logger.recordOutput("Roller/Goal", goal);
+  }
 
-    public Command setGoalCommand(Goal goal) {
-        return Commands.startEnd(() -> setGoal(goal), () -> setGoal(Goal.IDLE), this);
-    }
+  @AutoLogOutput
+  public Goal getGoal() {
+    return goal;
+  }
 
-    public boolean hasGamePiece() {
-        return hasGamePiece;
-    }
+  @AutoLogOutput
+  public void setGoal(Goal goal) {
+    this.goal = goal;
+  }
+
+  public Command setGoalCommand(Goal goal) {
+    return Commands.startEnd(() -> setGoal(goal), () -> setGoal(Goal.IDLE), this);
+  }
+
+  public boolean hasGamePiece() {
+    return hasGamePiece;
+  }
 }

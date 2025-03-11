@@ -4,7 +4,7 @@ import static frc.team4276.frc2025.subsystems.drive.DriveConstants.*;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
-import frc.team4276.util.LoggedTunableNumber;
+import frc.team4276.util.dashboard.LoggedTunableNumber;
 import java.util.function.Supplier;
 
 public class HeadingController {

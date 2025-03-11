@@ -13,26 +13,6 @@
 
 package frc.team4276.frc2025.subsystems.drive;
 
-import java.util.Queue;
-import java.util.function.DoubleSupplier;
-
-import com.revrobotics.AbsoluteEncoder;
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.spark.ClosedLoopSlot;
-import com.revrobotics.spark.SparkBase.ControlType;
-import com.revrobotics.spark.SparkBase.PersistMode;
-import com.revrobotics.spark.SparkBase.ResetMode;
-import com.revrobotics.spark.SparkClosedLoopController;
-import com.revrobotics.spark.SparkClosedLoopController.ArbFFUnits;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import com.revrobotics.spark.config.SparkMaxConfig;
-
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.filter.Debouncer;
-import edu.wpi.first.math.geometry.Rotation2d;
 import static frc.team4276.frc2025.subsystems.drive.DriveConstants.backLeftDriveCanId;
 import static frc.team4276.frc2025.subsystems.drive.DriveConstants.backLeftTurnCanId;
 import static frc.team4276.frc2025.subsystems.drive.DriveConstants.backLeftZeroRotation;
@@ -65,6 +45,25 @@ import static frc.team4276.frc2025.subsystems.drive.DriveConstants.turnPIDMinInp
 import static frc.team4276.util.SparkUtil.ifOk;
 import static frc.team4276.util.SparkUtil.sparkStickyFault;
 import static frc.team4276.util.SparkUtil.tryUntilOk;
+
+import com.revrobotics.AbsoluteEncoder;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.spark.ClosedLoopSlot;
+import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkClosedLoopController.ArbFFUnits;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkMaxConfig;
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.geometry.Rotation2d;
+import java.util.Queue;
+import java.util.function.DoubleSupplier;
 
 /**
  * Module IO implementation for Spark Max drive motor controller, Spark Max turn motor controller,

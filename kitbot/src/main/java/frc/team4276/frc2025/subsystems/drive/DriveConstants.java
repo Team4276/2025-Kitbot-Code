@@ -15,7 +15,6 @@ package frc.team4276.frc2025.subsystems.drive;
 
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.RobotConfig;
-
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -44,10 +43,12 @@ public class DriveConstants {
   public static final double maxAngularAccel = 20.0;
 
   // Zeroed rotation values for each module, see setup instructions
-  public static final Rotation2d frontLeftZeroRotation = new Rotation2d(-1.539);
+  public static final Rotation2d frontLeftZeroRotation =
+      new Rotation2d(-1.539).rotateBy(Rotation2d.kPi);
   public static final Rotation2d frontRightZeroRotation = new Rotation2d(-0.105);
   public static final Rotation2d backLeftZeroRotation = new Rotation2d(2.226);
-  public static final Rotation2d backRightZeroRotation = new Rotation2d(-2.845);
+  public static final Rotation2d backRightZeroRotation =
+      new Rotation2d(-2.845).rotateBy(Rotation2d.kPi);
 
   // Device CAN IDs
   public static final int frontLeftDriveCanId = Ports.FRONT_LEFT_DRIVE;
@@ -81,7 +82,7 @@ public class DriveConstants {
   // Wheel Rad/Sec
 
   // Drive PID configuration
-  public static final double driveKp = 0.001524;
+  public static final double driveKp = 0.005;
   public static final double driveKd = 0.0;
   public static final double driveKs = 0.0;
   public static final double driveKv =

@@ -1,12 +1,11 @@
 package frc.team4276.frc2025.subsystems.drive.controllers;
 
-import org.littletonrobotics.junction.Logger;
-
-import choreo.util.ChoreoAllianceFlipUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import frc.team4276.frc2025.subsystems.drive.DriveConstants;
+import frc.team4276.util.AllianceFlipUtil;
+import org.littletonrobotics.junction.Logger;
 
 public class TeleopDriveController {
   private static final double LINEAR_VELOCITY_SCALAR = 0.25;
@@ -25,7 +24,7 @@ public class TeleopDriveController {
     controllerOmega = omega;
   }
 
-  public ChassisSpeeds updateRaw(Rotation2d yaw) {
+  public ChassisSpeeds update(Rotation2d yaw) {
     double linearMagnitude = Math.hypot(controllerX, controllerY);
 
     // Square magnitude for more precise control
@@ -34,23 +33,18 @@ public class TeleopDriveController {
     Translation2d linearVelocity = new Translation2d();
 
     if (linearMagnitude > 1e-6) {
-      linearVelocity = new Translation2d(linearMagnitude, new Rotation2d(controllerX, controllerY))
-          .times(LINEAR_VELOCITY_SCALAR);
+      linearVelocity =
+          new Translation2d(linearMagnitude, new Rotation2d(controllerX, controllerY))
+              .times(LINEAR_VELOCITY_SCALAR);
     }
 
     // Square rotation value for more precise control
     double omega = Math.copySign(controllerOmega * controllerOmega, controllerOmega);
 
-    return new ChassisSpeeds(
+    return ChassisSpeeds.fromFieldRelativeSpeeds(
         linearVelocity.getX() * DriveConstants.maxSpeed,
         linearVelocity.getY() * DriveConstants.maxSpeed,
-        omega * DriveConstants.maxAngularSpeed * ANGULAR_VELOCITY_SCALAR);
-  }
-
-  public ChassisSpeeds update(Rotation2d yaw) {
-    Logger.recordOutput("Choreo/ShouldFlip", ChoreoAllianceFlipUtil.shouldFlip());
-
-    return ChassisSpeeds.fromFieldRelativeSpeeds(updateRaw(yaw),
-        ChoreoAllianceFlipUtil.shouldFlip() ? yaw.plus(Rotation2d.fromDegrees(180)) : yaw);
+        omega * DriveConstants.maxAngularSpeed * ANGULAR_VELOCITY_SCALAR,
+        AllianceFlipUtil.apply(yaw));
   }
 }

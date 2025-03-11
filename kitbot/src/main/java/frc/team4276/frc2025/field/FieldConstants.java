@@ -1,74 +1,106 @@
 package frc.team4276.frc2025.field;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
+import frc.team4276.util.AllianceFlipUtil;
 
 public class FieldConstants {
+  public static final int aprilTagCount = 22;
+  public static final AprilTagFieldLayout apriltagLayout =
+      AprilTagFieldLayout // TODO: add fudge factors
+          .loadField(AprilTagFields.k2025ReefscapeWelded);
+
   public static final double fieldLength = Units.inchesToMeters(690.875958);
-  public static final double fieldWidth = Units.inchesToMeters(317.000000);
-  public static final Translation2d fieldCenter = new Translation2d(
-      Units.inchesToMeters(345.437979),
-      Units.inchesToMeters(158.5));
+  public static final double fieldWidth = Units.inchesToMeters(317);
+  public static final Translation2d fieldCenter =
+      new Translation2d(Units.inchesToMeters(345.437979), Units.inchesToMeters(158.5));
 
-  public static class POIs {
-    public Translation2d reefCenter = new Translation2d();
-    // starts at the right most post just under the 0 degree line and moves
-    // counterclockwise around the reef
-    public Pose2d[] reefScoring = new Pose2d[12];
+  public static final double reefToFieldCenter = 4.284788;
+
+  public static final Pose2d blueReefCenter =
+      new Pose2d(fieldCenter.minus(new Translation2d(reefToFieldCenter, 0.0)), Rotation2d.kZero);
+
+  public static final double alignOffset = Units.inchesToMeters(14.0);
+  public static final double scoringOffset = Units.inchesToMeters(31.0);
+  public static final double reefCenterToTag = Units.inchesToMeters(20.738196);
+  public static final double tagToReef = Units.inchesToMeters(6.468853);
+
+  public static final Translation2d reefToLeftAlign =
+      new Translation2d(-1.0 * (reefCenterToTag + scoringOffset + alignOffset), tagToReef);
+  public static final Translation2d reefToRightAlign =
+      reefToLeftAlign.plus(new Translation2d(0.0, -2.0 * tagToReef));
+
+  public static final Translation2d reefToLeftScore =
+      new Translation2d(-1.0 * (reefCenterToTag + scoringOffset), tagToReef);
+  public static final Translation2d reefToRightScore =
+      reefToLeftScore.plus(new Translation2d(0.0, -2.0 * tagToReef));
+
+  public static final Pose2d[] blueReefToScore = new Pose2d[12];
+  public static final Pose2d[] blueReefToAlign = new Pose2d[12];
+
+  static {
+    for (int i = 0; i < 6; i++) {
+      var angle = Rotation2d.fromDegrees(i * 60);
+      blueReefToScore[i * 2] =
+          blueReefCenter.plus(new Transform2d(reefToLeftScore.rotateBy(angle), angle));
+      blueReefToAlign[i * 2] =
+          blueReefCenter.plus(new Transform2d(reefToLeftAlign.rotateBy(angle), angle));
+      blueReefToScore[i * 2 + 1] =
+          blueReefCenter.plus(new Transform2d(reefToRightScore.rotateBy(angle), angle));
+      blueReefToAlign[i * 2 + 1] =
+          blueReefCenter.plus(new Transform2d(reefToRightAlign.rotateBy(angle), angle));
+    }
   }
 
-  public static final double scoringOffset = 40; // inches
+  public enum Reef {
+    A(blueReefToScore[0], blueReefToAlign[0]),
+    B(blueReefToScore[1], blueReefToAlign[1]),
+    C(blueReefToScore[2], blueReefToAlign[2]),
+    D(blueReefToScore[3], blueReefToAlign[3]),
+    E(blueReefToScore[4], blueReefToAlign[4]),
+    F(blueReefToScore[5], blueReefToAlign[5]),
+    G(blueReefToScore[6], blueReefToAlign[6]),
+    H(blueReefToScore[7], blueReefToAlign[7]),
+    I(blueReefToScore[8], blueReefToAlign[8]),
+    J(blueReefToScore[9], blueReefToAlign[9]),
+    K(blueReefToScore[10], blueReefToAlign[10]),
+    L(blueReefToScore[11], blueReefToAlign[11]);
 
-  public static final Translation2d reefToLeftScoring = new Translation2d(
-      Units.inchesToMeters(20.738196 + scoringOffset), Units.inchesToMeters(-6.468853));
-  public static final Translation2d reefToRightScoring = new Translation2d(
-      Units.inchesToMeters(20.738196 + scoringOffset), Units.inchesToMeters(6.468853));
+    private final Pose2d score;
+    private final Pose2d align;
 
-  public static final POIs bluePOIs = new POIs();
-  static {
-    bluePOIs.reefCenter = fieldCenter.plus(new Translation2d(-4.284788, 0.0));
-    bluePOIs.reefScoring[0] = new Pose2d(bluePOIs.reefCenter.plus(reefToLeftScoring), Rotation2d.fromDegrees(180.0));
-    bluePOIs.reefScoring[1] = new Pose2d(bluePOIs.reefCenter.plus(reefToRightScoring), Rotation2d.fromDegrees(180.0));
-    bluePOIs.reefScoring[2] = new Pose2d(
-        bluePOIs.reefCenter.plus(reefToLeftScoring.rotateBy(Rotation2d.fromDegrees(60.0))),
-        Rotation2d.fromDegrees(240.0));
-    bluePOIs.reefScoring[3] = new Pose2d(
-        bluePOIs.reefCenter.plus(reefToRightScoring.rotateBy(Rotation2d.fromDegrees(60.0))),
-        Rotation2d.fromDegrees(240.0));
-    bluePOIs.reefScoring[4] = new Pose2d(
-        bluePOIs.reefCenter.plus(reefToLeftScoring.rotateBy(Rotation2d.fromDegrees(120.0))),
-        Rotation2d.fromDegrees(300.0));
-    bluePOIs.reefScoring[5] = new Pose2d(
-        bluePOIs.reefCenter.plus(reefToRightScoring.rotateBy(Rotation2d.fromDegrees(120.0))),
-        Rotation2d.fromDegrees(300.0));
-    bluePOIs.reefScoring[6] = new Pose2d(
-        bluePOIs.reefCenter.plus(reefToLeftScoring.rotateBy(Rotation2d.fromDegrees(180.0))),
-        Rotation2d.fromDegrees(0.0));
-    bluePOIs.reefScoring[7] = new Pose2d(
-        bluePOIs.reefCenter.plus(reefToRightScoring.rotateBy(Rotation2d.fromDegrees(180.0))),
-        Rotation2d.fromDegrees(0.0));
-    bluePOIs.reefScoring[8] = new Pose2d(
-        bluePOIs.reefCenter.plus(reefToLeftScoring.rotateBy(Rotation2d.fromDegrees(240.0))),
-        Rotation2d.fromDegrees(60.0));
-    bluePOIs.reefScoring[9] = new Pose2d(
-        bluePOIs.reefCenter.plus(reefToRightScoring.rotateBy(Rotation2d.fromDegrees(240.0))),
-        Rotation2d.fromDegrees(60.0));
-    bluePOIs.reefScoring[10] = new Pose2d(
-        bluePOIs.reefCenter.plus(reefToLeftScoring.rotateBy(Rotation2d.fromDegrees(300.0))),
-        Rotation2d.fromDegrees(120.0));
-    bluePOIs.reefScoring[11] = new Pose2d(
-        bluePOIs.reefCenter.plus(reefToRightScoring.rotateBy(Rotation2d.fromDegrees(300.0))),
-        Rotation2d.fromDegrees(120.0));
-  }
+    private Reef(Pose2d score, Pose2d align) {
+      this.score = score;
+      this.align = align;
+    }
 
-  public static final POIs redPOIs = new POIs();
-  static {
-    redPOIs.reefCenter = fieldCenter.plus(new Translation2d(4.284793, 0.0));
-    var distanceBetweenReefs = redPOIs.reefCenter.getDistance(bluePOIs.reefCenter);
-    for(int i = 0; i < bluePOIs.reefScoring.length; i++){
-      redPOIs.reefScoring[i] = new Pose2d(bluePOIs.reefScoring[i].getX() + distanceBetweenReefs, bluePOIs.reefScoring[i].getY(), bluePOIs.reefScoring[i].getRotation());
+    public Pose2d getScore() {
+      return AllianceFlipUtil.apply(score);
+    }
+
+    public Pose2d getBlueScore() {
+      return score;
+    }
+
+    public Pose2d getRedScore() {
+      return AllianceFlipUtil.flip(score);
+    }
+
+    public Pose2d getAlign() {
+      return AllianceFlipUtil.apply(align);
+    }
+
+    public Pose2d getBlueAlign() {
+      return align;
+    }
+
+    public Pose2d getRedAlign() {
+      return AllianceFlipUtil.flip(align);
     }
   }
 }
